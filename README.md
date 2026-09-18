@@ -9,42 +9,43 @@ This project demonstrates a multi-region disaster recovery (DR) setup on AWS wit
 	•	✅ Multi-AZ redundancy within each region
 
 *DR Strategy: Cold Standby*
-This project implements a cold standby disaster recovery pattern:
-	•	Primary Region (us-east-1): Actively serving production traffic
-	•	Secondary Region (us-west-2): Idle, ready to take over if primary fails
-	•	RTO (Recovery Time Objective): ~5-10 minutes (manual failover)
-	•	RPO (Recovery Point Objective): ~minutes (depends on data sync interval)
+	This project implements a cold standby disaster recovery pattern:
+		•	Primary Region (us-east-1): Actively serving production traffic
+		•	Secondary Region (us-west-2): Idle, ready to take over if primary fails
+		•	RTO (Recovery Time Objective): ~5-10 minutes (manual failover)
+		•	RPO (Recovery Point Objective): ~minutes (depends on data sync interval)
 
 **🏗️ Architecture**
-┌─────────────────────────────────┐       ┌─────────────────────────────────┐
-│     PRIMARY REGION (us-east-1)  │       │   SECONDARY REGION (us-west-2)  │
-│                                 │       │                                 │
-│  ┌─────────────────────────────┐│       │┌─────────────────────────────┐  │
-│  │   VPC: 10.0.0.0/16          ││       ││   VPC: 10.1.0.0/16          │  │
-│  │                             ││       ││                             │  │
-│  │  ┌──────────┐  ┌──────────┐ ││       ││ ┌──────────┐  ┌──────────┐  │  │
-│  │  │ Subnet   │  │ Subnet   │ ││       ││ │ Subnet   │  │ Subnet   │  │  │
-│  │  │ 1a       │  │ 1b       │ ││       ││ │ 1a       │  │ 1b       │  │  │
-│  │  │ 10.0.1   │  │ 10.0.2   │ ││       ││ │ 10.1.1   │  │ 10.1.2   │  │  │
-│  │  └────┬─────┘  └────┬─────┘ ││       ││ └────┬─────┘  └────┬─────┘  │  │
-│  │       │              │      ││       ││      │             │        │  │
-│  │    ┌──▼──┐        ┌──▼──┐   ││       ││   ┌──▼──┐       ┌──▼──┐     │  │
-│  │    │ EC2 │        │ EC2 │   ││       ││   │ EC2 │       │ EC2 │     │  │
-│  │    │     │        │     │   ││       ││   │     │       │     │     │  │
-│  │    └──▲──┘        └──▲──┘   ││       ││   └──▲──┘       └──▲──┘     │  │
-│  │       └────────┬─────┘      ││       ││      └────────┬─────┘       │  │
-│  │                │            ││       ││             │               │  │
-│  │          ┌─────▼──────┐     ││       ││       ┌─────▼──────┐        │  │
-│  │          │    ALB     │     ││       ││       │    ALB     │        │  │
-│  │          │ Port 80    │     ││       ││       │ Port 80    │        │  │
-│  │          └─────┬──────┘     ││       ││       └─────┬──────┘        │  │
-│  │                │            ││       ││             │               │  │
-│  │          ┌─────▼──────┐     ││       ││       ┌─────▼──────┐        │  │
-│  │          │  S3 Bucket │     ││       ││       │  S3 Bucket │        │  │
-│  │          │ (Versioned)│     ││       ││       │ (Versioned)│        │  │
-│  │          └────────────┘     ││       ││       └────────────┘        │  │
-│  └─────────────────────────────┘│       │└─────────────────────────────┘  │
-└─────────────────────────────────┘       └─────────────────────────────────┘
+
+	┌─────────────────────────────────┐       ┌─────────────────────────────────┐
+	│     PRIMARY REGION (us-east-1)  │       │   SECONDARY REGION (us-west-2)  │
+	│                                 │       │                                 │
+	│  ┌─────────────────────────────┐│       │┌─────────────────────────────┐  │
+	│  │   VPC: 10.0.0.0/16          ││       ││   VPC: 10.1.0.0/16          │  │
+	│  │                             ││       ││                             │  │
+	│  │  ┌──────────┐  ┌──────────┐ ││       ││ ┌──────────┐  ┌──────────┐  │  │
+	│  │  │ Subnet   │  │ Subnet   │ ││       ││ │ Subnet   │  │ Subnet   │  │  │
+	│  │  │ 1a       │  │ 1b       │ ││       ││ │ 1a       │  │ 1b       │  │  │
+	│  │  │ 10.0.1   │  │ 10.0.2   │ ││       ││ │ 10.1.1   │  │ 10.1.2   │  │  │
+	│  │  └────┬─────┘  └────┬─────┘ ││       ││ └────┬─────┘  └────┬─────┘  │  │
+	│  │       │              │      ││       ││      │             │        │  │
+	│  │    ┌──▼──┐        ┌──▼──┐   ││       ││   ┌──▼──┐       ┌──▼──┐     │  │
+	│  │    │ EC2 │        │ EC2 │   ││       ││   │ EC2 │       │ EC2 │     │  │
+	│  │    │     │        │     │   ││       ││   │     │       │     │     │  │
+	│  │    └──▲──┘        └──▲──┘   ││       ││   └──▲──┘       └──▲──┘     │  │
+	│  │       └────────┬─────┘      ││       ││      └────────┬─────┘       │  │
+	│  │                │            ││       ││             │               │  │
+	│  │          ┌─────▼──────┐     ││       ││       ┌─────▼──────┐        │  │
+	│  │          │    ALB     │     ││       ││       │    ALB     │        │  │
+	│  │          │ Port 80    │     ││       ││       │ Port 80    │        │  │
+	│  │          └─────┬──────┘     ││       ││       └─────┬──────┘        │  │
+	│  │                │            ││       ││             │               │  │
+	│  │          ┌─────▼──────┐     ││       ││       ┌─────▼──────┐        │  │
+	│  │          │  S3 Bucket │     ││       ││       │  S3 Bucket │        │  │
+	│  │          │ (Versioned)│     ││       ││       │ (Versioned)│        │  │
+	│  │          └────────────┘     ││       ││       └────────────┘        │  │
+	│  └─────────────────────────────┘│       │└─────────────────────────────┘  │
+	└─────────────────────────────────┘       └─────────────────────────────────┘
            │                                          │
            └──────────────────┬───────────────────────┘
                               │
@@ -133,15 +134,15 @@ Stores backups and provides cross-region replication.
 
 *Configuration:*
 
-Primary Bucket (us-east-1)
-	├── Versioning: ENABLED
-	│   └── Keeps all previous versions of objects
-	│   └── Allows recovery from accidental deletes
-	└── Replication: (NOT configured yet)
+	Primary Bucket (us-east-1)
+		├── Versioning: ENABLED
+		│   └── Keeps all previous versions of objects
+		│   └── Allows recovery from accidental deletes
+		└── Replication: (NOT configured yet)
 
-Secondary Bucket (us-west-2)
-	├── Versioning: ENABLED
-	└── Receives replicated data from primary   
+	Secondary Bucket (us-west-2)
+		├── Versioning: ENABLED
+		└── Receives replicated data from primary   
 
 6. Health Check Script (Python)
 Monitors primary region and triggers failover.
@@ -169,16 +170,19 @@ Monitors primary region and triggers failover.
 
 **📦 Prerequisites**
 Before deploying, ensure you have:
-	1.	AWS Account
-		•	Credentials configured (~/.aws/credentials)
-		•	Permissions for EC2, VPC, ALB, S3, IAM
-	2.	Terraform (v1.0.0+)
-		•	terraform --version  # Should output v1.0.0 or higher
-	3.	AWS CLI (optional, for manual verification)
-		•	aws --version
-	4.	Python 3.8+ (for health check script)
-		•	python3 --version
-		•	pip install requests
+1.	AWS Account
+	•	Credentials configured (~/.aws/credentials)
+	•	Permissions for EC2, VPC, ALB, S3, IAM
+
+2.	Terraform (v1.0.0+)
+	•	terraform --version  # Should output v1.0.0 or higher
+	
+3.	AWS CLI (optional, for manual verification)
+	•	aws --version
+	
+4.	Python 3.8+ (for health check script)
+	•	python3 --version
+	•	pip install requests
 
 
 		
