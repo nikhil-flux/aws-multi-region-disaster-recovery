@@ -1,6 +1,8 @@
 **🎯 Project Overview**
-This project demonstrates a multi-region disaster recovery (DR) setup on AWS with infrastructure-as-code using Terraform. It creates a highly available web application that spans two geographic regions (us-east-1 and us-west-2), ensuring business continuity if one region fails.
+	
+	This project demonstrates a multi-region disaster recovery (DR) setup on AWS with infrastructure-as-code using Terraform. It creates a highly available web 			application that spans two geographic regions (us-east-1 and us-west-2), ensuring business continuity if one region fails.
 *Key Features*
+
 	•	✅ Two independent regions with identical infrastructure
 	•	✅ Automatic failover detection via health check script
 	•	✅ Data replication across regions using S3
@@ -9,6 +11,7 @@ This project demonstrates a multi-region disaster recovery (DR) setup on AWS wit
 	•	✅ Multi-AZ redundancy within each region
 
 *DR Strategy: Cold Standby*
+
 	This project implements a cold standby disaster recovery pattern:
 		•	Primary Region (us-east-1): Actively serving production traffic
 		•	Secondary Region (us-west-2): Idle, ready to take over if primary fails
@@ -58,24 +61,20 @@ This project demonstrates a multi-region disaster recovery (DR) setup on AWS wit
                      └─────────────────┘
 
 **🔧 Components Explained**
-1. VPC (Virtual Private Cloud)
-Each region has its own isolated network with:
+
+	1. VPC (Virtual Private Cloud)
+	Each region has its own isolated network with:
 	•	CIDR Block: 10.0.0.0/16 (primary) | 10.1.0.0/16 (secondary)
 	•	Subnets: 2 public subnets per region (one per AZ for redundancy)
 	•	Internet Gateway: Enables internet access for instances
 	•	Route Tables: Direct internet traffic to IGW
-Interview Talking Points:
-	•	“VPCs are region-scoped and provide network isolation”
-	•	“Different CIDR ranges prevent IP conflicts”
-	•	“Multi-AZ subnets ensure AZ-level redundancy”
-2. Security Groups
-Acts as a stateful firewall at the instance level.
-Ingress Rules:
+	2. Security Groups
+	Acts as a stateful firewall at the instance level.
+	Ingress Rules:
 
 		- Port 80 (HTTP):  Open to 0.0.0.0/0 (anyone on the internet)
 		- Port 22 (SSH):   Open to 0.0.0.0/0 (SECURITY RISK ⚠️)
-   
-Egress Rules:
+   	Egress Rules:
 
 		- All traffic (0.0.0.0/0) outbound allowed
 		
@@ -91,7 +90,7 @@ Security Issues & Fixes:
 		✅ Fix: Create separate SG for RDS allowing only EC2 SG on port 3306/5432
 
 3. EC2 Instances (t3.micro)
-Lightweight compute instances running Nginx web server.
+	Lightweight compute instances running Nginx web server.
 
 *User Data Script (Auto-executed on startup):*
 
@@ -115,7 +114,8 @@ Production Fix:
 		}
 
 4. Application Load Balancer (ALB)
-Distributes incoming traffic across EC2 instances.
+
+		Distributes incoming traffic across EC2 instances.
 
 *Configuration:*
 
@@ -124,13 +124,15 @@ Distributes incoming traffic across EC2 instances.
 		Health Check: Pings /index.html every 5 seconds
 
 What it does:
+
 	•	Single DNS endpoint (users don’t need to know individual EC2 IPs)
 	•	Distributes traffic across instances in both AZs
 	•	Removes unhealthy instances from rotation
 	•	Layer 7 (application layer) routing
 
 5. S3 Buckets (Data Backup & Sync)
-Stores backups and provides cross-region replication.
+
+		Stores backups and provides cross-region replication.
 
 *Configuration:*
 
@@ -145,7 +147,8 @@ Stores backups and provides cross-region replication.
 		└── Receives replicated data from primary   
 
 6. Health Check Script (Python)
-Monitors primary region and triggers failover.
+   
+		Monitors primary region and triggers failover.
 
 *How it works:*
 
@@ -169,20 +172,21 @@ Monitors primary region and triggers failover.
         	print("📧 Alert on-call engineer via Slack/PagerDuty")
 
 **📦 Prerequisites**
-Before deploying, ensure you have:
-1.	AWS Account
-	•	Credentials configured (~/.aws/credentials)
-	•	Permissions for EC2, VPC, ALB, S3, IAM
 
-2.	Terraform (v1.0.0+)
-	•	terraform --version  # Should output v1.0.0 or higher
+	Before deploying, ensure you have:
+	1.	AWS Account
+		•	Credentials configured (~/.aws/credentials)
+		•	Permissions for EC2, VPC, ALB, S3, IAM
+
+	2.	Terraform (v1.0.0+)
+		•	terraform --version  # Should output v1.0.0 or higher
 	
-3.	AWS CLI (optional, for manual verification)
-	•	aws --version
+	3.	AWS CLI (optional, for manual verification)
+		•	aws --version
 	
-4.	Python 3.8+ (for health check script)
-	•	python3 --version
-	•	pip install requests
+	4.	Python 3.8+ (for health check script)
+		•	python3 --version
+		•	pip install requests
 
 
 		
