@@ -1,0 +1,46 @@
+﻿# Terraform state files
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+*.tfstate.lock.hcl
+
+# Terraform plans
+*.tfplan
+*.out
+
+# Terraform variable files
+*.tfvars
+*.tfvars.json
+!example.tfvars
+
+# Terraform directories
+.terraform/
+.terraform.lock.hcl
+
+# Terraform logs
+crash.log
+crash.*.log
+
+# Terraform CLI
+.terraformrc
+terraform.rc
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.class
+*.so
+
+# Environment files
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
