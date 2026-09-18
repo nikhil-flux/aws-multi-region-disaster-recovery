@@ -1,6 +1,6 @@
-<b>🎯 Project Overview<b>
+<h1>🎯 Project Overview<h1>
 This project demonstrates a multi-region disaster recovery (DR) setup on AWS with infrastructure-as-code using Terraform. It creates a highly available web application that spans two geographic regions (us-east-1 and us-west-2), ensuring business continuity if one region fails.
-<h1>Key Features<h1>
+Key Features
 	•	✅ Two independent regions with identical infrastructure
 	•	✅ Automatic failover detection via health check script
 	•	✅ Data replication across regions using S3
